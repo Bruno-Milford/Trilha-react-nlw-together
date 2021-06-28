@@ -6,11 +6,32 @@ import { RoomCode } from '../components/RoomCode';
 import { useAuht } from '../hooks/useAuth';
 
 import { useParams } from 'react-router-dom';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 
 import { database } from '../services/firebase';
 
 import '../styles/room.scss';
+
+type FirebaseQuestions = Record<string, {
+  author: {
+    name: string;
+    avatar: string;
+  }
+  content: string;
+  isHighlighted: boolean;
+  isAnswered: boolean;
+}>
+
+type Question = {
+  id: string,
+  author: {
+    name: string;
+    avatar: string;
+  }
+  content: string;
+  isHighlighted: boolean;
+  isAnswered: boolean;
+}
 
 type RoomParams = {
   id: string;
@@ -21,7 +42,31 @@ export function Room() {
   const roomID = params.id;
 
   const [newQuestion, setNewQuestion] = useState(''); 
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [title, setTitle] = useState('');
   const { user } = useAuht();
+
+  useEffect(() => {
+    const roomRef = database.ref(`rooms/${ roomID }`);
+
+    roomRef.once('value', room => {
+      const databaseRoom = room.val();
+      const firebaseQuestions: FirebaseQuestions = databaseRoom.questions ?? {};
+
+      const parsedQuestions = Object.entries(firebaseQuestions).map(([key, value]) => {
+        return {
+          id: key,
+          content: value.content,
+          author: value.author,
+          isHighlighted: value.isHighlighted,
+          isAnswered: value.isAnswered
+        }
+      })
+
+      setTitle(databaseRoom.title);
+      setQuestions(parsedQuestions);
+    });
+  }, [roomID]);
 
   async function handleSendQuestion(event: FormEvent) {
     event.preventDefault();
@@ -59,8 +104,8 @@ export function Room() {
       </header>
       <main>
         <div className="room-title">
-          <h1>Sala React</h1>
-          <span>4 perguntas</span>
+          <h1>Sala { title }</h1>
+          { questions.length > 0 && <span>{ questions.length } pergunta(s)</span> }
         </div>
         <form onSubmit={ handleSendQuestion }>
           <textarea placeholder="O que você quer perguntar ?"
