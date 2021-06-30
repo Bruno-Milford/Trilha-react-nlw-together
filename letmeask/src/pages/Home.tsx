@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { FormEvent, useState } from 'react';
 
 import { Button } from '../components/Button';
-import { useAuht } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 
 import { database } from '../services/firebase';
 
@@ -14,7 +14,7 @@ import '../styles/auth.scss';
 
 export function Home() {
   const history = useHistory();
-  const { user, signInWithGoogle } = useAuht();
+  const { user, signInWithGoogle } = useAuth();
   const [roomCode, setRoomCode] = useState('');
 
   async function handleCreateRoom() {

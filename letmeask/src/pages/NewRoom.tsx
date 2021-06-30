@@ -5,13 +5,13 @@ import { Link, useHistory } from 'react-router-dom';
 import { FormEvent, useState } from 'react';
 
 import { Button } from '../components/Button';
-import { useAuht } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useAuth';
 import { database } from '../services/firebase';
 
 import '../styles/auth.scss';
 
 export function NewRoom() {
-  const { user } = useAuht();
+  const { user } = useAuth();
   const history = useHistory();
   const [newRoom, setNewRoom] = useState('');
 
